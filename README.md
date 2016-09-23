@@ -1,2 +1,2 @@
-# calendar
+# Calendar
 Javascript Calendar
