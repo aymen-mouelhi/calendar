@@ -34,14 +34,24 @@ function addEvent(width, height, top, left) {
  * @return {[type]}        [description]
  */
 function layOutDay(events) {
+    if (!events) {
+        // No events have been submitted - clear calendar
+        document.getElementById('calander').innerHTML = '';
+        return;
+    }
+
     var eventsLength = events.length;
     var timeslots = [];
     var event, i, j;
 
-    // Sort events by id.
+    // Sort events by start time.
     events = events.sort(function(a, b) {
-        return a.id - b.id;
+        return a.start - b.start;
     });
+
+    events.map(function(item, idx){
+        return item.id = idx + 1;
+    })
 
     // Initialize timeslots.
     for (i = 0; i < 720; i++) {
@@ -52,7 +62,7 @@ function layOutDay(events) {
     for (i = 0; i < eventsLength; i++) {
         event = events[i];
 
-        // Safety first.
+        // Check start and end times and invert if necessary
         if (event.start > event.end) {
             var temp = event.start;
             event.start = event.end;
@@ -75,16 +85,19 @@ function layOutDay(events) {
             // Store the greatest concurrent event count (cevc) for each event.
             for (j = 0; j < timeslotLength; j++) {
                 event = events[timeslots[i][j] - 1];
-                if (!event.cevc || event.cevc < timeslotLength) {
-                    event.cevc = timeslotLength;
-                    // Now is also a good time to coordinate horizontal ordering.
-                    // If this is our first conflict, start at the current index.
-                    if (!event.hindex) {
-                        event.hindex = next_hindex;
+                //console.log('Event: ' + JSON.stringify(event));
+                if (event) {
+                    if (!event.cevc || event.cevc < timeslotLength) {
+                        event.cevc = timeslotLength;
+                        // Now is also a good time to coordinate horizontal ordering.
+                        // If this is our first conflict, start at the current index.
+                        if (!event.hindex) {
+                            event.hindex = next_hindex;
 
-                        // We also want to boost the index,
-                        // so that whoever we conflict with doesn't get the same one.
-                        next_hindex++;
+                            // We also want to boost the index,
+                            // so that whoever we conflict with doesn't get the same one.
+                            next_hindex++;
+                        }
                     }
                 }
             }
@@ -119,4 +132,4 @@ var events = [
 ];
 
 // Update Event
-layOutDay(events);
+//layOutDay(events);
